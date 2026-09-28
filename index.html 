@@ -5,8 +5,8 @@
 <meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
 <meta name="theme-color" content="#0b1220">
 <meta name="description" content="منصة أكاديمية البيان التعليمية">
-<link rel="manifest" href="/my-website/manifest.json">
-<link rel="icon" href="/my-website/file_000000004b1c822f832d57514330ad17.png" type="image/png">
+<link rel="manifest" href="/sky-media-/manifest.json">
+<link rel="icon" href="/sky-media-/file_000000004b1c822f832d57514330ad17.png" type="image/png">
 <title>أكاديمية البيان</title>
 <style>
 *{box-sizing:border-box}
@@ -26,7 +26,7 @@ button:active{transform:scale(.98)}
 <body>
 <div class="app">
 <div class="card">
-<img class="logo" src="/my-website/file_000000004b1c822f832d57514330ad17.png" alt="أكاديمية البيان">
+<img class="logo" src="/sky-media-/file_000000004b1c822f832d57514330ad17.png" alt="أكاديمية البيان">
 <h1>أكاديمية البيان</h1>
 <p>منصة أكاديمية البيان التعليمية</p>
 <button id="installBtn">تثبيت التطبيق</button>
@@ -61,4 +61,37 @@ installBtn.style.display="none";
 if("serviceWorker"in navigator){
 window.addEventListener("load",async()=>{
 try{
-const registration=await navigator.serviceWorker
+const registration=await navigator.serviceWorker.register("/sky-media-/service-worker.js",{scope:"/sky-media-/"});
+status.textContent="التطبيق جاهز للعمل";
+registration.addEventListener("updatefound",()=>{
+const worker=registration.installing;
+if(worker)worker.addEventListener("statechange",()=>{
+if(worker.state==="installed"&&navigator.serviceWorker.controller)status.textContent="يوجد تحديث جديد للتطبيق";
+});
+});
+}catch(e){
+status.textContent="تعذر تشغيل التخزين المحلي للتطبيق";
+}
+});
+}
+updateBtn.addEventListener("click",async()=>{
+if(!("serviceWorker"in navigator)){
+status.textContent="المتصفح لا يدعم تحديث التطبيق";
+return;
+}
+try{
+const registration=await navigator.serviceWorker.getRegistration("/sky-media-/");
+if(!registration){
+status.textContent="لم يتم العثور على Service Worker";
+return;
+}
+status.textContent="جاري البحث عن تحديث...";
+await registration.update();
+status.textContent="تم فحص التحديثات";
+}catch(e){
+status.textContent="تعذر تحديث التطبيق";
+}
+});
+</script>
+</body>
+</html>
