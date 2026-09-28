@@ -1,0 +1,64 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+<meta name="theme-color" content="#0b1220">
+<meta name="description" content="منصة أكاديمية البيان التعليمية">
+<link rel="manifest" href="/my-website/manifest.json">
+<link rel="icon" href="/my-website/file_000000004b1c822f832d57514330ad17.png" type="image/png">
+<title>أكاديمية البيان</title>
+<style>
+*{box-sizing:border-box}
+html,body{margin:0;padding:0;width:100%;min-height:100%;font-family:Arial,Tahoma,sans-serif;background:#0b1220;color:#fff}
+body{display:flex;justify-content:center;align-items:center;min-height:100vh}
+.app{width:100%;max-width:600px;padding:20px}
+.card{background:#111c2e;border-radius:22px;padding:30px 20px;text-align:center;box-shadow:0 10px 35px rgba(0,0,0,.3)}
+.logo{width:110px;height:110px;object-fit:contain;border-radius:25px;margin-bottom:15px}
+h1{margin:5px 0 10px;font-size:28px}
+p{margin:0 0 25px;color:#b8c3d4;font-size:16px}
+button{width:100%;border:0;border-radius:14px;padding:15px;margin-top:10px;font-size:17px;font-weight:bold;cursor:pointer;background:#fff;color:#0b1220}
+button:active{transform:scale(.98)}
+#installBtn{display:none}
+#status{margin-top:18px;color:#9eabc0;font-size:14px}
+</style>
+</head>
+<body>
+<div class="app">
+<div class="card">
+<img class="logo" src="/my-website/file_000000004b1c822f832d57514330ad17.png" alt="أكاديمية البيان">
+<h1>أكاديمية البيان</h1>
+<p>منصة أكاديمية البيان التعليمية</p>
+<button id="installBtn">تثبيت التطبيق</button>
+<button id="updateBtn">تحديث التطبيق</button>
+<div id="status">جاري تجهيز التطبيق...</div>
+</div>
+</div>
+<script>
+let deferredPrompt=null;
+const installBtn=document.getElementById("installBtn");
+const updateBtn=document.getElementById("updateBtn");
+const status=document.getElementById("status");
+window.addEventListener("beforeinstallprompt",e=>{
+e.preventDefault();
+deferredPrompt=e;
+installBtn.style.display="block";
+status.textContent="التطبيق جاهز للتثبيت";
+});
+installBtn.addEventListener("click",async()=>{
+if(!deferredPrompt)return;
+deferredPrompt.prompt();
+const result=await deferredPrompt.userChoice;
+if(result.outcome==="accepted")status.textContent="تم بدء تثبيت التطبيق";
+else status.textContent="تم إلغاء التثبيت";
+deferredPrompt=null;
+installBtn.style.display="none";
+});
+window.addEventListener("appinstalled",()=>{
+status.textContent="تم تثبيت التطبيق بنجاح";
+installBtn.style.display="none";
+});
+if("serviceWorker"in navigator){
+window.addEventListener("load",async()=>{
+try{
+const registration=await navigator.serviceWorker
