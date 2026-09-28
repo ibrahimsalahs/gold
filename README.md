@@ -1,2 +1,0 @@
-# sky-media-
-Design Company 
