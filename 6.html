@@ -1,0 +1,296 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width,initial-scale=1.0">
+<title>تصحيح الاختبار</title>
+<style>*{box-sizing:border-box;margin:0;padding:0;font-family:Tahoma,Arial,sans-serif;-webkit-user-select:none;user-select:none}
+body{min-height:100vh;background:#071019;color:#fff;overflow-x:hidden}
+body:before{content:"";position:fixed;inset:0;z-index:-3;background:radial-gradient(circle at 90% 5%,#00c7a044 0,transparent 28%),radial-gradient(circle at 5% 80%,#1976d235 0,transparent 30%),linear-gradient(145deg,#071019,#0d202b 55%,#08141d)}
+.container{width:min(1000px,94%);margin:30px auto}
+.header,.info,.section,.score{background:linear-gradient(145deg,#102530,#0b1922);border:1px solid #ffffff0d;border-radius:21px;padding:22px;margin-bottom:20px;box-shadow:0 10px 25px #00000025}
+h1{margin:0 0 10px;font-size:28px}
+.subtitle{color:#aebfc9}
+.search{display:flex;gap:10px;margin-top:20px}
+input{flex:1;padding:14px 16px;border:1px solid #344866;border-radius:12px;font-size:16px;outline:none;background:#0d1c26;color:#fff;-webkit-user-select:text;user-select:text}
+input:focus{border-color:#00b89e;box-shadow:0 0 0 2px #00b89e18}
+button{border:0;border-radius:12px;padding:14px 24px;background:linear-gradient(135deg,#008f7a,#1769aa);color:#fff;font-size:15px;font-weight:bold;cursor:pointer}
+button:disabled{opacity:.6;cursor:not-allowed}
+.info{display:none}
+.info-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(180px,1fr));gap:12px}
+.info-box{background:#0d1c26;border:1px solid #ffffff0d;padding:15px;border-radius:12px}
+.info-box span{display:block;color:#7f96a5;font-size:12px;margin-bottom:5px}
+.info-box strong{font-size:16px}
+.status{display:none;padding:14px 18px;border-radius:12px;margin-bottom:20px}
+.error{background:#431b24;color:#fecaca}
+.success{background:#123c2a;color:#a7f3d0}
+.section{margin-bottom:18px}
+.section-title{font-size:20px;font-weight:bold;margin-bottom:18px;border-bottom:1px solid #ffffff0d;padding-bottom:12px}
+.question{border:1px solid #ffffff0d;border-radius:16px;padding:18px;margin-bottom:15px;background:#0d1c26}
+.question:last-child{margin-bottom:0}
+.question-head{display:flex;justify-content:space-between;gap:15px;align-items:flex-start;margin-bottom:15px}
+.question-number{background:#00b89e18;color:#5ee0c7;padding:7px 11px;border-radius:9px;font-size:13px;font-weight:bold;white-space:nowrap}
+.question-text{font-size:17px;font-weight:bold;line-height:1.8;flex:1}
+.answer-row{display:grid;grid-template-columns:1fr 1fr;gap:12px}
+.answer-box{padding:14px;border-radius:12px;background:#102530}
+.answer-box span{display:block;font-size:12px;color:#7f96a5;margin-bottom:7px}
+.answer-box strong{font-size:15px}
+.correct{background:#123c2a;border:1px solid #00b89e30}
+.correct strong{color:#5ee0c7}
+.wrong{background:#431b24;border:1px solid #ff826b30}
+.wrong strong{color:#fecaca}
+.neutral{background:#3b3218;border:1px solid #ffc85730}
+.neutral strong{color:#ffc857}
+.options{display:flex;flex-wrap:wrap;gap:8px;margin-top:12px}
+.option{padding:8px 12px;border-radius:9px;background:#17243a;font-size:14px}
+.option.answer{background:#1976d235;color:#65d9ff;font-weight:bold}
+.option.correct-option{background:#123c2a;color:#a7f3d0;font-weight:bold}
+.empty{padding:35px;text-align:center;color:#7f96a5}
+.score{display:none;text-align:center}
+.score-number{font-size:42px;font-weight:bold;color:#5ee0c7}
+.score-label{color:#aebfc9;margin-top:5px}
+.student-header{display:flex;justify-content:space-between;align-items:center;gap:15px;margin-bottom:20px;padding-bottom:15px;border-bottom:1px solid #ffffff0d}
+.student-name{font-size:21px;font-weight:bold}
+.student-code{color:#7f96a5;font-size:13px;margin-top:6px}
+.result-box{margin-top:25px;padding:18px;background:#0d1c26;border-radius:15px;border:1px solid #ffffff0d}
+.result-title{font-size:16px;font-weight:bold;margin-bottom:10px}
+.result-input{width:100%;background:#071019}
+.send-result{margin-top:12px;width:100%}
+.send-result.sent{background:#008f7a}
+.send-result.error{background:#991b1b;color:#fff}
+.send-status{margin-top:10px;font-size:13px;display:none}
+.send-status.success{display:block;color:#5ee0c7;background:transparent}
+.send-status.error{display:block;color:#fecaca;background:transparent}
+@media(max-width:600px){.container{width:96%;margin:15px auto}.search{flex-direction:column}.search button{width:100%}.answer-row{grid-template-columns:1fr}.question-head{flex-direction:column}.student-header{flex-direction:column;align-items:flex-start}.header,.info,.section,.score{padding:15px;border-radius:18px}}</style>
+</head>
+<body>
+<div class="container">
+<div class="header">
+<h1>تصحيح الاختبار</h1>
+<div class="subtitle">أدخل رقم الاختبار لعرض إجابات الطلاب وتصحيح الأسئلة</div>
+<div class="search">
+<input id="examNumber" type="text" placeholder="رقم الاختبار">
+<button id="searchBtn" onclick="loadExam()">عرض النتيجة</button>
+</div>
+</div>
+<div id="status" class="status"></div>
+<div id="info" class="info"></div>
+<div id="score" class="score"></div>
+<div id="content"></div>
+</div>
+<script>
+const API_URL='https://script.google.com/macros/s/AKfycbyt9uY8cedE2xDpmjW6CkRyisy7mpW5nIBp1ishr3eG1CxApp4oNC3ycut-R8g_tPLG/exec';
+const sections=[
+{key:'choice',title:'أسئلة الاختيار'},
+{key:'trueFalse',title:'أسئلة صح وخطأ'},
+{key:'complete',title:'أسئلة أكمل'},
+{key:'mixed',title:'الأسئلة المختلطة'},
+{key:'extract',title:'أسئلة الاستخراج'}
+];
+async function loadExam(){
+const examNumber=document.getElementById('examNumber').value.trim();
+if(!examNumber){
+showStatus('أدخل رقم الاختبار.','error');
+return;
+}
+const btn=document.getElementById('searchBtn');
+btn.disabled=true;
+btn.textContent='جاري التحميل...';
+document.getElementById('content').innerHTML='';
+document.getElementById('info').style.display='none';
+document.getElementById('score').style.display='none';
+try{
+const response=await fetch(API_URL+'?action=getExamAndAnswers&examNumber='+encodeURIComponent(examNumber));
+const data=await response.json();
+if(!data.success){
+showStatus(data.message||'تعذر جلب الاختبار.','error');
+return;
+}
+renderExam(data.exam,data.answers||[]);
+showStatus('تم تحميل الاختبار بنجاح.','success');
+}catch(error){
+showStatus('حدث خطأ أثناء الاتصال بالخادم.','error');
+}finally{
+btn.disabled=false;
+btn.textContent='عرض النتيجة';
+}
+}
+function renderExam(exam,answerRows){
+const info=document.getElementById('info');
+info.innerHTML='<div class="info-grid"><div class="info-box"><span>رقم الاختبار</span><strong>'+escapeHtml(exam.C||'')+'</strong></div><div class="info-box"><span>اسم الاختبار</span><strong>'+escapeHtml(exam.A||'غير محدد')+'</strong></div><div class="info-box"><span>عدد الطلاب</span><strong>'+answerRows.length+'</strong></div></div>';
+info.style.display='block';
+if(!answerRows.length){
+document.getElementById('content').innerHTML='<div class="section empty">لا توجد إجابات مسجلة لهذا الاختبار.</div>';
+return;
+}
+document.getElementById('content').innerHTML=answerRows.map((row,index)=>buildStudentResult(exam,row,index)).join('');
+}
+function buildStudentResult(exam,row,index){
+const answers=normalizeAnswers(row.answers);
+const studentName=String(row.studentName||'').trim();
+const studentCode=extractStudentCode(studentName,row.studentCode);
+let html='<div class="section">';
+html+='<div class="student-header"><div><div class="student-name">'+escapeHtml(studentName||'اسم الطالب غير موجود')+'</div><div class="student-code">الكود: '+escapeHtml(studentCode||'غير موجود')+'</div></div><div class="question-number">الطالب '+(index+1)+'</div></div>';
+html+='<div class="info-grid" style="margin-bottom:18px"><div class="info-box"><span>رقم الاختبار</span><strong>'+escapeHtml(row.examNumber||exam.C||'')+'</strong></div><div class="info-box"><span>عدد الإجابات</span><strong>'+answers.length+'</strong></div></div>';
+let correct=0;
+let autoCount=0;
+let questionIndex=0;
+sections.forEach(section=>{
+const list=exam.sections&&Array.isArray(exam.sections[section.key])?exam.sections[section.key]:[];
+if(!list.length)return;
+html+='<div class="section-title">'+section.title+'</div>';
+list.forEach(q=>{
+const studentAnswer=getAnswer(answers,questionIndex);
+const result=checkAnswer(q,studentAnswer);
+if(result.auto){
+autoCount++;
+if(result.correct)correct++;
+}
+html+=renderQuestion(q,studentAnswer,result,questionIndex+1);
+questionIndex++;
+});
+});
+html+='<div class="result-box">';
+html+='<div class="result-title">إدخال نتيجة الطالب</div>';
+html+='<input class="result-input" id="result-'+index+'" type="number" min="0" max="100" step="0.01" placeholder="أدخل النتيجة بالنسبة المئوية">';
+html+='<button class="send-result" id="send-'+index+'" onclick="sendResult('+index+',\''+escapeJs(studentCode)+'\',\''+escapeJs(row.examNumber||exam.C||'')+'\')">إرسال النتيجة</button>';
+html+='<div class="send-status" id="send-status-'+index+'"></div>';
+html+='</div>';
+html+='</div>';
+if(index===0){
+const score=document.getElementById('score');
+score.innerHTML='<div class="score-number">'+correct+' / '+autoCount+'</div><div class="score-label">النتيجة في الأسئلة التي يمكن تصحيحها تلقائيًا للطالب الأول</div>';
+score.style.display='block';
+}
+return html;
+}
+function extractStudentCode(studentName,studentCode){
+const name=String(studentName||'').trim();
+const code=String(studentCode||'').trim();
+if(code&&code!=='غير موجود'){
+const match=code.match(/\d+/);
+if(match)return match[0];
+}
+const match=name.match(/(?:\(\s*(\d+)\s*\)|(?:^|\s)(\d+)\s*$)/);
+return match?(match[1]||match[2]):'';
+}
+function renderQuestion(q,studentAnswer,result,number){
+let statusClass=result.auto?(result.correct?'correct':'wrong'):'neutral';
+let statusText=result.auto?(result.correct?'إجابة صحيحة':'إجابة خاطئة'):'تحتاج تصحيحًا يدويًا';
+let html='<div class="question">';
+html+='<div class="question-head"><div class="question-text">'+escapeHtml(q.question||'')+'</div><div class="question-number">سؤال '+number+'</div></div>';
+html+='<div class="answer-row">';
+html+='<div class="answer-box '+statusClass+'"><span>إجابة الطالب</span><strong>'+escapeHtml(displayAnswer(studentAnswer))+'</strong></div>';
+if(q.answer){
+html+='<div class="answer-box '+(result.auto?(result.correct?'correct':'wrong'):'neutral')+'"><span>الإجابة الصحيحة</span><strong>'+escapeHtml(q.answer)+'</strong></div>';
+}else{
+html+='<div class="answer-box neutral"><span>الحالة</span><strong>'+statusText+'</strong></div>';
+}
+html+='</div>';
+if(q.options&&q.options.length){
+html+='<div class="options">';
+q.options.forEach(option=>{
+let cls='';
+if(normalize(option)===normalize(studentAnswer))cls+=' answer';
+if(normalize(option)===normalize(q.answer))cls+=' correct-option';
+html+='<span class="option'+cls+'">'+escapeHtml(option)+'</span>';
+});
+html+='</div>';
+}
+html+='</div>';
+return html;
+}
+function checkAnswer(q,studentAnswer){
+if(q.type==='choice'||q.type==='trueFalse'){
+return{auto:true,correct:normalize(studentAnswer)===normalize(q.answer)};
+}
+return{auto:false,correct:false};
+}
+async function sendResult(index,studentCode,examNumber){
+const input=document.getElementById('result-'+index);
+const button=document.getElementById('send-'+index);
+const status=document.getElementById('send-status-'+index);
+const result=input.value.trim();
+if(result===''){
+status.textContent='أدخل النتيجة أولًا.';
+status.className='send-status error';
+return;
+}
+const value=Number(result);
+if(isNaN(value)||value<0||value>100){
+status.textContent='النتيجة يجب أن تكون بين 0 و100.';
+status.className='send-status error';
+return;
+}
+button.disabled=true;
+button.textContent='جاري الإرسال...';
+status.style.display='none';
+try{
+const response=await fetch(API_URL,{
+method:'POST',
+headers:{'Content-Type':'text/plain;charset=utf-8'},
+body:JSON.stringify({
+action:'saveResult',
+studentCode:studentCode,
+examNumber:examNumber,
+result:String(value)
+})
+});
+const data=await response.json();
+if(!data.success){
+status.textContent=data.message||'تعذر حفظ النتيجة.';
+status.className='send-status error';
+button.disabled=false;
+button.textContent='إرسال النتيجة';
+return;
+}
+status.textContent='تم حفظ النتيجة بنجاح.';
+status.className='send-status success';
+button.textContent='تم الإرسال';
+button.classList.add('sent');
+input.disabled=true;
+button.disabled=true;
+}catch(error){
+status.textContent='حدث خطأ أثناء إرسال النتيجة.';
+status.className='send-status error';
+button.disabled=false;
+button.textContent='إرسال النتيجة';
+}
+}
+function normalizeAnswers(value){
+if(!Array.isArray(value))return[];
+return value.map(item=>{
+if(item&&typeof item==='object'){
+if('answer' in item)return String(item.answer??'').trim();
+if('value' in item)return String(item.value??'').trim();
+}
+return String(item??'').trim();
+});
+}
+function getAnswer(answers,index){
+return index<answers.length?answers[index]:'';
+}
+function displayAnswer(answer){
+return answer===''?'لم يجب الطالب':answer;
+}
+function normalize(value){
+return String(value??'').trim().replace(/\s+/g,' ').toLowerCase();
+}
+function escapeHtml(value){
+return String(value??'').replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;').replace(/'/g,'&#039;');
+}
+function escapeJs(value){
+return String(value??'').replace(/\\/g,'\\\\').replace(/'/g,"\\'").replace(/\r/g,'\\r').replace(/\n/g,'\\n');
+}
+function showStatus(message,type){
+const el=document.getElementById('status');
+el.textContent=message;
+el.className='status '+type;
+el.style.display='block';
+}
+document.getElementById('examNumber').addEventListener('keydown',e=>{
+if(e.key==='Enter')loadExam();
+});
+</script>
+</body>
+</html>
