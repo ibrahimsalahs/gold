@@ -1,0 +1,164 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>مواعيد المعلم</title>
+<style>*{box-sizing:border-box;margin:0;padding:0;font-family:Tahoma,Arial,sans-serif;-webkit-user-select:none;user-select:none}
+body{min-height:100vh;background:#071019;color:#fff;overflow-x:hidden}
+body:before{content:"";position:fixed;inset:0;z-index:-3;background:radial-gradient(circle at 90% 5%,#00c7a044 0,transparent 28%),radial-gradient(circle at 5% 80%,#1976d235 0,transparent 30%),linear-gradient(145deg,#071019,#0d202b 55%,#08141d)}
+.container{width:100%;max-width:1550px;margin:15px auto;padding:10px 20px 40px}
+.card{background:linear-gradient(145deg,#102530,#0b1922);border:1px solid #ffffff0d;border-radius:18px;padding:18px;box-shadow:0 8px 25px #00000025;margin-bottom:15px}
+h1{margin:0 0 6px;font-size:24px}
+.subtitle{color:#8fa5b4;margin-bottom:18px;font-size:13px}
+.search{display:flex;gap:8px}
+input{flex:1;padding:11px 14px;border:1px solid #344866;border-radius:10px;font-size:14px;outline:none;background:#0d1c26;color:#fff;-webkit-user-select:text;user-select:text}
+input:focus{border-color:#00b89e;box-shadow:0 0 0 2px #00b89e18}
+button{border:0;border-radius:10px;padding:0 22px;background:linear-gradient(135deg,#008f7a,#1769aa);color:#fff;font-size:14px;font-weight:bold;cursor:pointer}
+button:disabled{opacity:.6;cursor:not-allowed}
+.teacher-info{display:grid;grid-template-columns:1fr 1fr;gap:10px}
+.info{background:#0d1c26;border:1px solid #ffffff0d;border-radius:12px;padding:13px}
+.label{font-size:11px;color:#7f96a5;margin-bottom:5px}
+.value{font-size:17px;font-weight:bold}
+.table-wrap{overflow-x:auto;border-radius:12px}
+table{width:100%;border-collapse:separate;border-spacing:0;min-width:750px}
+th{background:#123c39;color:#fff;padding:10px 7px;font-size:12px;white-space:nowrap}
+th:first-child{border-radius:0 10px 0 0}
+th:last-child{border-radius:10px 0 0 0}
+td{padding:9px 7px;text-align:center;border-bottom:1px solid #ffffff0d;background:#0d1c26;color:#fff;vertical-align:middle;font-size:12px}
+tr:hover td{background:#102530}
+.student{text-align:right;font-weight:bold;min-width:150px}
+.time{display:inline-block;background:#1976d235;color:#65d9ff;border-radius:7px;padding:5px 7px;margin:2px;font-size:11px;white-space:nowrap}
+.empty{color:#667b89}
+.count{font-weight:bold;font-size:16px;color:#5ee0c7}
+.stats{display:grid;grid-template-columns:1fr 1fr;gap:10px}
+.stat{padding:15px;border-radius:13px;background:#0d1c26;border:1px solid #ffffff0d;text-align:center}
+.stat-number{font-size:26px;font-weight:bold;margin-bottom:4px;color:#5ee0c7}
+.stat-title{color:#8fa5b4;font-size:12px}
+.message{text-align:center;padding:13px;border-radius:10px;margin-top:12px;display:none;font-size:13px}
+.error{background:#431b24;color:#fecaca}
+.loading{background:#17243a;color:#65d9ff}
+.hidden{display:none!important}
+@media(max-width:900px){.container{max-width:1100px;padding:8px 12px 30px}.card{padding:15px}.table-wrap{overflow-x:auto}}
+@media(max-width:600px){.container{margin:10px auto}.search{flex-direction:column}button{height:45px}.teacher-info,.stats{grid-template-columns:1fr}h1{font-size:21px}.card{border-radius:16px;padding:13px}}</style>
+</head>
+<body>
+<div class="container">
+<div class="card">
+<h1>بيانات المعلم</h1>
+<div class="subtitle">أدخل كود المعلم لعرض الاشتراكات والمواعيد</div>
+<div class="search">
+<input id="teacherId" type="number" inputmode="numeric" placeholder="كود المعلم">
+<button id="searchBtn" onclick="loadTeacher()">عرض البيانات</button>
+</div>
+<div id="message" class="message"></div>
+</div>
+<div id="teacherCard" class="card hidden">
+<div class="teacher-info">
+<div class="info"><div class="label">اسم المعلم</div><div id="teacherName" class="value">-</div></div>
+<div class="info"><div class="label">المادة</div><div id="subject" class="value">-</div></div>
+</div>
+</div>
+<div id="scheduleCard" class="card hidden">
+<h2>جدول الاشتراكات والمواعيد</h2>
+<div class="table-wrap">
+<table>
+<thead>
+<tr>
+<th>الاشتراك</th>
+<th>السبت</th>
+<th>الأحد</th>
+<th>الاثنين</th>
+<th>الثلاثاء</th>
+<th>الأربعاء</th>
+<th>الخميس</th>
+<th>الجمعة</th>
+<th>عدد الحصص</th>
+</tr>
+</thead>
+<tbody id="scheduleBody"></tbody>
+</table>
+</div>
+</div>
+<div id="statsCard" class="card hidden">
+<div class="stats">
+<div class="stat">
+<div id="totalStudents" class="stat-number">0</div>
+<div class="stat-title">إجمالي الطلاب</div>
+</div>
+<div class="stat">
+<div id="totalLessons" class="stat-number">0</div>
+<div class="stat-title">إجمالي الحصص</div>
+</div>
+</div>
+</div>
+</div>
+<script>
+const API_URL="https://script.google.com/macros/s/AKfycby7mTMhUxrLz1WDuZ1YtOpdbNQwYZDLQpU_1ls5mgptuOU1phWbmWJBjscH2QTJlF5BDg/exec";
+const DAYS=["السبت","الأحد","الاثنين","الثلاثاء","الأربعاء","الخميس","الجمعة"];
+function showMessage(text,type){const el=document.getElementById("message");el.textContent=text;el.className="message "+type;el.style.display="block"}
+function hideMessage(){document.getElementById("message").style.display="none"}
+async function loadTeacher(){
+const id=document.getElementById("teacherId").value.trim();
+if(!id){showMessage("أدخل كود المعلم","error");return}
+const btn=document.getElementById("searchBtn");
+btn.disabled=true;
+btn.textContent="جاري التحميل...";
+hideMessage();
+document.getElementById("teacherCard").classList.add("hidden");
+document.getElementById("scheduleCard").classList.add("hidden");
+document.getElementById("statsCard").classList.add("hidden");
+try{
+const response=await fetch(API_URL,{method:"POST",headers:{"Content-Type":"text/plain;charset=utf-8"},body:JSON.stringify({page:"teachers",action:"get_teacher_data",teacherId:id})});
+const result=await response.json();
+if(!result.success){showMessage(result.message||"تعذر جلب البيانات","error");return}
+renderTeacher(result.data);
+}catch(error){showMessage("تعذر الاتصال بالخادم","error")}
+finally{btn.disabled=false;btn.textContent="عرض البيانات"}
+}
+function renderTeacher(data){
+document.getElementById("teacherName").textContent=data.teacher.name+" ("+data.teacher.code+")";
+document.getElementById("subject").textContent=data.teacher.subject||"-";
+document.getElementById("teacherCard").classList.remove("hidden");
+const body=document.getElementById("scheduleBody");
+body.innerHTML="";
+data.subscriptions.forEach(sub=>{
+const tr=document.createElement("tr");
+const student=document.createElement("td");
+student.className="student";
+student.textContent=sub.studentName+" ("+sub.studentCode+")";
+tr.appendChild(student);
+DAYS.forEach(day=>{
+const td=document.createElement("td");
+const times=sub.schedule&&sub.schedule[day]?sub.schedule[day]:[];
+if(times.length){
+times.forEach(time=>{
+const span=document.createElement("span");
+span.className="time";
+span.textContent=time;
+td.appendChild(span);
+});
+}else{
+const span=document.createElement("span");
+span.className="empty";
+span.textContent="—";
+td.appendChild(span);
+}
+tr.appendChild(td);
+});
+const count=document.createElement("td");
+count.className="count";
+count.textContent=sub.lessonsCount||0;
+tr.appendChild(count);
+body.appendChild(tr);
+});
+document.getElementById("totalStudents").textContent=data.totals.students||0;
+document.getElementById("totalLessons").textContent=data.totals.lessons||0;
+document.getElementById("scheduleCard").classList.remove("hidden");
+document.getElementById("statsCard").classList.remove("hidden");
+}
+document.getElementById("teacherId").addEventListener("keydown",e=>{if(e.key==="Enter")loadTeacher()});
+</script>
+    <script src="auth.js"></script>
+</body>
+</html>
