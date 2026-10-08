@@ -1,0 +1,94 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width,initial-scale=1.0">
+<title>إضافة اختبار</title>
+<style>*{box-sizing:border-box;margin:0;padding:0;font-family:Tahoma,Arial,sans-serif;-webkit-user-select:none;user-select:none}
+body{min-height:100vh;background:#071019;color:#fff;overflow-x:hidden}
+body:before{content:"";position:fixed;inset:0;z-index:-3;background:radial-gradient(circle at 90% 5%,#00c7a044 0,transparent 28%),radial-gradient(circle at 5% 80%,#1976d235 0,transparent 30%),linear-gradient(145deg,#071019,#0d202b 55%,#08141d)}
+.container{width:100%;max-width:900px;margin:auto;padding:25px 17px 50px}
+h1{text-align:center;margin-bottom:8px;font-size:26px}
+.subtitle{text-align:center;color:#aebfc9;margin-bottom:25px;font-size:13px}
+.card{background:linear-gradient(145deg,#102530,#0b1922);border:1px solid #ffffff0d;border-radius:21px;padding:18px;margin-bottom:18px;box-shadow:0 10px 25px #00000025}
+.card h2{margin-top:0;font-size:19px;color:#fff}
+label{display:block;margin:12px 0 7px;font-weight:bold;font-size:13px}
+input,textarea,select{width:100%;background:#0d1c26;border:1px solid #344866;color:#fff;border-radius:12px;padding:12px;font-size:15px;outline:none;-webkit-user-select:text;user-select:text}
+input:focus,textarea:focus,select:focus{border-color:#00b89e;box-shadow:0 0 0 2px #00b89e18}
+input:disabled{opacity:.7;cursor:not-allowed}
+textarea{min-height:100px;resize:vertical}
+.question{background:#0d1c26;border:1px solid #ffffff0c;border-radius:15px;padding:14px;margin:12px 0;box-shadow:0 8px 20px #00000018}
+.question-title{font-weight:bold;margin-bottom:10px;font-size:14px}
+.option{display:grid;grid-template-columns:1fr 100px;gap:8px;margin-top:8px}
+button{border:0;border-radius:12px;padding:11px 15px;cursor:pointer;font-size:14px;font-weight:bold}
+.add{background:linear-gradient(135deg,#008f7a,#1769aa);color:#fff}
+.delete{background:#991b1b;color:#fff}
+.save{width:100%;background:linear-gradient(135deg,#008f7a,#00b89e);color:#fff;font-size:18px;padding:15px;box-shadow:0 10px 25px #00000030}
+.status{display:none;padding:13px;border-radius:12px;margin-top:15px;text-align:center;font-size:13px}
+.success{display:block;background:#123c2a;color:#a7f3d0;border:1px solid #00b89e30}
+.error{display:block;background:#431b24;color:#fecaca;border:1px solid #ff826b30}
+.small{color:#94a7c2;font-size:13px;line-height:1.7}
+.result{display:none;margin-top:15px;background:#0d1c26;border:1px solid #344866;border-radius:14px;padding:15px;text-align:center}
+.exam-number{font-size:20px;font-weight:bold;margin-top:8px;letter-spacing:1px;color:#5ee0c7}
+@media(max-width:600px){.container{padding:18px 12px 40px}.option{grid-template-columns:1fr}.card{padding:15px;border-radius:18px}h1{font-size:23px}}
+@media(min-width:700px){.container{max-width:1000px;padding:35px 25px 60px}.card{padding:23px;border-radius:25px}h1{font-size:32px}.subtitle{font-size:14px}.card h2{font-size:21px}}</style>
+</head>
+<body>
+<div class="container">
+<h1>➕ إضافة اختبار</h1>
+<div class="subtitle">إنشاء اختبار جديد</div>
+<div class="card">
+<h2>📋 بيانات الاختبار</h2>
+<label for="teacher">اسم المعلم</label>
+<input id="teacher" type="text" placeholder="اسم المعلم">
+<label for="subject">المادة</label>
+<input id="subject" type="text" placeholder="اسم المادة">
+<label for="examNumber">رقم الاختبار 🔒</label>
+<input id="examNumber" type="text" placeholder="سيتم إنشاء الرقم تلقائيًا" disabled>
+<div class="small">رقم الاختبار يتم إنشاؤه تلقائيًا من Google Apps Script ولا يمكن تعديله.</div>
+<label for="duration">المدة الزمنية</label>
+<input id="duration" type="text" placeholder="مثال: 60 دقيقة">
+<label for="title">عنوان الاختبار</label>
+<input id="title" type="text" placeholder="عنوان الاختبار">
+</div>
+<div class="card">
+<h2>1️⃣ اختيار من متعدد</h2>
+<div class="small">التخزين: (السؤال_اختيار1-اختيار2-اختيار3/الإجابة الصحيحة)</div>
+<div id="choiceQuestions"></div>
+<button class="add" type="button" onclick="addChoiceQuestion()">＋ إضافة سؤال</button>
+</div>
+<div class="card">
+<h2>2️⃣ صح وخطأ</h2>
+<div class="small">التخزين: (السؤال/صح) أو (السؤال/خطأ)</div>
+<div id="tfQuestions"></div>
+<button class="add" type="button" onclick="addTFQuestion()">＋ إضافة سؤال</button>
+</div>
+<div class="card">
+<h2>3️⃣ أكمل</h2>
+<div class="small">التخزين: (السؤال)</div>
+<div id="completeQuestions"></div>
+<button class="add" type="button" onclick="addCompleteQuestion()">＋ إضافة سؤال</button>
+</div>
+<div class="card">
+<h2>4️⃣ أسئلة متنوعة</h2>
+<div class="small">التخزين: (نوع السؤال_سؤال1-سؤال2)</div>
+<div id="mixedQuestions"></div>
+<button class="add" type="button" onclick="addMixedQuestion()">＋ إضافة مجموعة</button>
+</div>
+<div class="card">
+<h2>5️⃣ استخرج من الفقرة</h2>
+<div class="small">التخزين: (الفقرة)(سؤال1-سؤال2)</div>
+<div id="extractQuestions"></div>
+<button class="add" type="button" onclick="addExtractQuestion()">＋ إضافة فقرة</button>
+</div>
+<button id="saveButton" class="save" type="button" onclick="saveExam()">💾 حفظ الاختبار</button>
+<div id="status" class="status"></div>
+<div id="result" class="result">
+<div>تم إنشاء الاختبار بنجاح</div>
+<div>رقم الاختبار</div>
+<div id="resultExamNumber" class="exam-number"></div>
+</div>
+</div>
+<script src="add-exam.js"></script>
+</body>
+</html>
