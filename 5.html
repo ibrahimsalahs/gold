@@ -1,0 +1,149 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>إضافة محتوى</title>
+<style>*{box-sizing:border-box;margin:0;padding:0;font-family:Tahoma,Arial,sans-serif;-webkit-user-select:none;user-select:none}
+body{min-height:100vh;background:#071019;color:#fff;overflow-x:hidden}
+body:before{content:"";position:fixed;inset:0;z-index:-3;background:radial-gradient(circle at 90% 5%,#00c7a044 0,transparent 28%),radial-gradient(circle at 5% 80%,#1976d235 0,transparent 30%),linear-gradient(145deg,#071019,#0d202b 55%,#08141d)}
+.box{width:min(500px,94%);margin:40px auto;background:linear-gradient(145deg,#102530,#0b1922);border:1px solid #ffffff0d;padding:25px;border-radius:21px;box-shadow:0 15px 35px #00000030}
+h2{text-align:center;margin:0 0 20px;font-size:24px}
+label{display:block;margin:14px 0 6px;font-weight:bold;font-size:13px}
+input,select,button{width:100%;padding:13px;border:1px solid #344866;border-radius:11px;font-size:15px;font-family:inherit}
+input,select{background:#0d1c26;color:#fff;outline:none;-webkit-user-select:text;user-select:text}
+input:focus,select:focus{border-color:#00b89e;box-shadow:0 0 0 2px #00b89e18}
+button{margin-top:20px;background:linear-gradient(135deg,#008f7a,#1769aa);color:#fff;border:0;font-weight:bold;cursor:pointer;box-shadow:0 10px 25px #00000025}
+button:disabled{opacity:.5;cursor:not-allowed}
+.hidden{display:none}
+.msg{text-align:center;margin-top:15px;font-weight:bold;font-size:13px}
+@media(max-width:500px){.box{width:94%;margin:25px auto;padding:20px;border-radius:18px}}</style>
+</head>
+<body>
+<div class="box">
+<h2>إضافة محتوى</h2>
+<label>كود المعلم</label>
+<input id="teacherCode" inputmode="numeric" placeholder="أدخل كود المعلم">
+<button id="loadBtn" onclick="loadStudents()">دخول</button>
+<div id="studentBox" class="hidden">
+<label>الطالب</label>
+<select id="student" onchange="showType()">
+<option value="">اختر الطالب</option>
+</select>
+<div id="typeBox" class="hidden">
+<label>نوع الإضافة</label>
+<select id="type" onchange="showFields()">
+<option value="">اختر النوع</option>
+<option value="lecture">إضافة محاضرة</option>
+<option value="book">إضافة كتاب</option>
+<option value="video">إضافة فيديو</option>
+</select>
+</div>
+<div id="fields" class="hidden">
+<label>الاسم</label>
+<input id="name" placeholder="أدخل الاسم">
+<label>ID</label>
+<input id="id" placeholder="أدخل ID">
+<button id="sendBtn" onclick="sendData()">إرسال</button>
+</div>
+</div>
+<div id="msg" class="msg"></div>
+</div>
+<script>
+const API='https://script.google.com/macros/s/AKfycbzKoMBG6FCZGjtsT_fOpSJemws1Im5-KkKgmqua8uUezRqAUbK9NywKeZyhAxfpr1St/exec';
+let teacher=null;
+let students=[];
+function normalizeCode(v){
+return String(v||'').replace(/[٠-٩]/g,d=>String('٠١٢٣٤٥٦٧٨٩'.indexOf(d))).trim();
+}
+async function loadStudents(){
+const code=normalizeCode(document.getElementById('teacherCode').value);
+const msg=document.getElementById('msg');
+const btn=document.getElementById('loadBtn');
+if(!code){msg.textContent='أدخل كود المعلم';return}
+btn.disabled=true;
+msg.textContent='جاري التحميل...';
+try{
+const response=await fetch(API+'?action=students&code='+encodeURIComponent(code));
+const data=await response.json();
+if(!data.success){msg.textContent=data.error||'حدث خطأ';btn.disabled=false;return}
+teacher={name:data.teacherName,code:data.teacherCode};
+students=data.students||[];
+const select=document.getElementById('student');
+select.innerHTML='<option value="">اختر الطالب</option>';
+students.forEach((student,index)=>{
+const option=document.createElement('option');
+option.value=index;
+option.textContent=student.name+' ('+student.code+') - اشتراك '+student.subscription;
+select.appendChild(option);
+});
+document.getElementById('studentBox').classList.remove('hidden');
+document.getElementById('typeBox').classList.add('hidden');
+document.getElementById('fields').classList.add('hidden');
+msg.textContent=students.length?'تم تحميل الطلاب':'لا يوجد طلاب';
+}catch(error){
+msg.textContent='حدث خطأ في الاتصال';
+}
+btn.disabled=false;
+}
+function showType(){
+const value=document.getElementById('student').value;
+document.getElementById('typeBox').classList.toggle('hidden',value==='');
+document.getElementById('fields').classList.add('hidden');
+document.getElementById('type').value='';
+}
+function showFields(){
+const value=document.getElementById('type').value;
+document.getElementById('fields').classList.toggle('hidden',value==='');
+}
+async function sendData(){
+const index=document.getElementById('student').value;
+const type=document.getElementById('type').value;
+const name=document.getElementById('name').value.trim();
+const id=document.getElementById('id').value.trim();
+const msg=document.getElementById('msg');
+const btn=document.getElementById('sendBtn');
+if(index===''||!type||!name||!id){
+msg.textContent='أكمل جميع البيانات';
+return;
+}
+const student=students[Number(index)];
+if(!student||!teacher){
+msg.textContent='بيانات الطالب أو المعلم غير موجودة';
+return;
+}
+btn.disabled=true;
+msg.textContent='جاري الإرسال...';
+try{
+const response=await fetch(API,{
+method:'POST',
+headers:{'Content-Type':'text/plain;charset=utf-8'},
+body:JSON.stringify({
+action:'add',
+teacherName:teacher.name,
+teacherCode:teacher.code,
+studentName:student.name,
+studentCode:student.code,
+subscription:student.subscription,
+type:type,
+name:name,
+id:id
+})
+});
+const data=await response.json();
+if(data.success){
+msg.textContent='تمت الإضافة بنجاح';
+document.getElementById('name').value='';
+document.getElementById('id').value='';
+}else{
+msg.textContent=data.error||'حدث خطأ';
+}
+}catch(error){
+msg.textContent='حدث خطأ في الاتصال';
+}
+btn.disabled=false;
+}
+</script>
+    <script src="auth.js"></script>
+</body>
+</html>
