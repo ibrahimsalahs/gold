@@ -1,0 +1,138 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width,initial-scale=1.0">
+<title>إضافة نتيجة</title>
+<style>*{box-sizing:border-box;margin:0;padding:0;font-family:Tahoma,Arial,sans-serif;-webkit-user-select:none;user-select:none}
+body{min-height:100vh;background:#071019;color:#fff;overflow-x:hidden}
+body:before{content:"";position:fixed;inset:0;z-index:-3;background:radial-gradient(circle at 90% 5%,#00c7a044 0,transparent 28%),radial-gradient(circle at 5% 80%,#1976d235 0,transparent 30%),linear-gradient(145deg,#071019,#0d202b 55%,#08141d)}
+.container{width:100%;max-width:900px;margin:auto;padding:25px 17px 50px}
+.card{background:linear-gradient(145deg,#102530,#0b1922);border:1px solid #ffffff0d;border-radius:21px;padding:20px;margin-bottom:18px;box-shadow:0 10px 25px #00000025}
+h1{margin:0 0 20px;text-align:center;font-size:26px}
+h2{margin:0 0 15px;font-size:19px}
+label{display:block;margin-bottom:7px;font-weight:bold;font-size:13px}
+input,select,button{width:100%;height:46px;border-radius:11px;font-family:inherit;font-size:15px}
+input,select{border:1px solid #344866;padding:0 12px;background:#0d1c26;color:#fff;outline:none;-webkit-user-select:text;user-select:text}
+input:focus,select:focus{outline:none;border-color:#00b89e;box-shadow:0 0 0 2px #00b89e18}
+button{border:0;background:linear-gradient(135deg,#008f7a,#1769aa);color:#fff;font-weight:bold;cursor:pointer;padding:0 12px}
+button:disabled{opacity:.55;cursor:not-allowed}
+.form-group{margin-bottom:15px}
+.teacher-data{display:grid;grid-template-columns:repeat(4,1fr);gap:10px}
+.data-box{border:1px solid #ffffff0d;border-radius:12px;padding:12px;background:#0d1c26}
+.data-title{font-size:12px;color:#7f96a5;margin-bottom:7px}
+.data-value{font-weight:bold;min-height:20px;word-break:break-word;color:#fff}
+.status{display:none;margin-top:15px;padding:12px;border-radius:10px;line-height:1.7;font-size:13px}
+.status.success{display:block;background:#123c2a;color:#a7f3d0;border:1px solid #00b89e30}
+.status.error{display:block;background:#431b24;color:#fecaca;border:1px solid #ff826b30}
+.status.loading{display:block;background:#17243a;color:#cbd5e1;border:1px solid #344866}
+.results-grid{display:grid;grid-template-columns:repeat(2,1fr);gap:15px}
+.full{grid-column:1/-1}
+.send-area{margin-top:15px}
+.hidden{display:none!important}
+@media(max-width:700px){.teacher-data{grid-template-columns:repeat(2,1fr)}.results-grid{grid-template-columns:1fr}.full{grid-column:auto}.container{width:96%;padding:18px 12px 40px}.card{padding:15px;border-radius:18px}}
+@media(max-width:420px){.teacher-data{grid-template-columns:1fr}h1{font-size:22px}}
+@media(min-width:700px){.container{padding:35px 25px 60px}.card{padding:24px;border-radius:25px}h1{font-size:32px}h2{font-size:21px}}</style>
+</head>
+<body>
+<div class="container">
+<div class="card">
+<h1>إضافة نتيجة</h1>
+<div class="form-group">
+<label for="teacherId">اى دى المعلم</label>
+<input id="teacherId" type="text" inputmode="numeric" autocomplete="off" placeholder="اكتب اى دى المعلم">
+</div>
+<button id="teacherSendButton" type="button">إرسال</button>
+<div id="teacherResponse" class="status"></div>
+</div>
+<div id="teacherCard" class="card hidden">
+<h2>بيانات المعلم</h2>
+<div class="teacher-data">
+<div class="data-box">
+<div class="data-title">اسم المعلم</div>
+<div id="teacherName" class="data-value"></div>
+</div>
+<div class="data-box">
+<div class="data-title">كود المعلم</div>
+<div id="teacherCode" class="data-value"></div>
+</div>
+<div class="data-box">
+<div class="data-title">المادة</div>
+<div id="teacherSubject" class="data-value"></div>
+</div>
+<div class="data-box">
+<div class="data-title">واتساب</div>
+<div id="teacherWhatsapp" class="data-value"></div>
+</div>
+</div>
+</div>
+<div id="subscriptionCard" class="card hidden">
+<h2>اختيار الطالب والاشتراك</h2>
+<div class="form-group">
+<label for="subscriptionSelect">الطالب والاشتراك</label>
+<select id="subscriptionSelect">
+<option value="">اختر الطالب والاشتراك</option>
+</select>
+</div>
+<div id="subscriptionResponse" class="status"></div>
+</div>
+<div id="resultsCard" class="card hidden">
+<h2>بيانات النتيجة</h2>
+<div class="results-grid">
+<div class="form-group">
+<label for="testNumber">رقم الاختبار</label>
+<input id="testNumber" type="text" inputmode="numeric" autocomplete="off" placeholder="اكتب رقم الاختبار">
+</div>
+<div class="form-group">
+<label for="homeworkResult">نتيجة الواجب</label>
+<input id="homeworkResult" type="text" autocomplete="off" placeholder="اكتب نتيجة الواجب">
+</div>
+<div class="form-group">
+<label for="testResult">نتيجة الاختبار</label>
+<input id="testResult" type="text" autocomplete="off" placeholder="اكتب نتيجة الاختبار">
+</div>
+<div class="form-group full">
+<label for="teacherEvaluation">تقييم المعلم</label>
+<input id="teacherEvaluation" type="text" autocomplete="off" placeholder="اكتب تقييم المعلم">
+</div>
+</div>
+<div class="send-area">
+<button id="sendResultButton" type="button">إرسال البيانات</button>
+</div>
+<div id="resultResponse" class="status"></div>
+</div>
+</div>
+<script>
+const API_URL="https://script.google.com/macros/s/AKfycbwMJKbcibl7OPYLvaVylqwyOvElsl5R2uhROVF1ndLEhDwUGSZyCi0BVbquTJRw__se/exec";
+const state={teacher:null,subscriptions:[],selectedSubscription:null};
+const teacherIdInput=document.getElementById("teacherId");
+const teacherSendButton=document.getElementById("teacherSendButton");
+const teacherResponse=document.getElementById("teacherResponse");
+const teacherCard=document.getElementById("teacherCard");
+const subscriptionCard=document.getElementById("subscriptionCard");
+const subscriptionSelect=document.getElementById("subscriptionSelect");
+const subscriptionResponse=document.getElementById("subscriptionResponse");
+const resultsCard=document.getElementById("resultsCard");
+const testNumber=document.getElementById("testNumber");
+const homeworkResult=document.getElementById("homeworkResult");
+const testResult=document.getElementById("testResult");
+const teacherEvaluation=document.getElementById("teacherEvaluation");
+const sendResultButton=document.getElementById("sendResultButton");
+const resultResponse=document.getElementById("resultResponse");
+function showResponse(element,type,message){element.className="status "+type;element.textContent=message||""}
+function clearResponse(element){element.className="status";element.textContent=""}
+function setLoading(button,loading,normalText){button.disabled=loading;button.textContent=loading?"جارى الإرسال...":normalText}
+async function sendRequest(request){const response=await fetch(API_URL,{method:"POST",headers:{"Content-Type":"text/plain;charset=utf-8"},body:JSON.stringify(request)});const text=await response.text();let result;try{result=JSON.parse(text)}catch(error){throw new Error("تعذر قراءة استجابة السيرفر")}return result}
+function resetTeacherData(){state.teacher=null;state.subscriptions=[];state.selectedSubscription=null;teacherCard.classList.add("hidden");subscriptionCard.classList.add("hidden");resultsCard.classList.add("hidden");subscriptionSelect.innerHTML='<option value="">اختر الطالب والاشتراك</option>';clearResponse(subscriptionResponse);clearResponse(resultResponse)}
+async function getTeacherData(){const teacherId=teacherIdInput.value.trim();resetTeacherData();clearResponse(teacherResponse);if(!teacherId){showResponse(teacherResponse,"error","لم يتم إدخال اى دى المعلم");return}if(!/^\d+$/.test(teacherId)){showResponse(teacherResponse,"error","اى دى المعلم غير صحيح");return}setLoading(teacherSendButton,true,"إرسال");try{const result=await sendRequest({page:"teachers",action:"get_teacher_data",teacherId:teacherId});if(!result||result.success!==true){showResponse(teacherResponse,"error",result&&result.message?result.message:"حدث خطأ أثناء جلب بيانات المعلم");return}if(!result.data||!result.data.teacher){showResponse(teacherResponse,"error","لم تصل بيانات المعلم من السيرفر");return}state.teacher=result.data.teacher;state.subscriptions=Array.isArray(result.data.subscriptions)?result.data.subscriptions:[];document.getElementById("teacherName").textContent=state.teacher.name||"";document.getElementById("teacherCode").textContent=state.teacher.code||"";document.getElementById("teacherSubject").textContent=state.teacher.subject||"";document.getElementById("teacherWhatsapp").textContent=state.teacher.whatsapp||"";teacherCard.classList.remove("hidden");subscriptionCard.classList.remove("hidden");subscriptionSelect.innerHTML='<option value="">اختر الطالب والاشتراك</option>';state.subscriptions.forEach(function(subscription,index){const option=document.createElement("option");option.value=String(index);option.textContent=subscription.studentName+" | كود الطالب: "+subscription.studentCode+" | الاشتراك: "+subscription.subscriptionNumber;subscriptionSelect.appendChild(option)});showResponse(teacherResponse,"success",result.message||"تم جلب بيانات المعلم بنجاح");if(state.subscriptions.length===0)showResponse(subscriptionResponse,"error","لا توجد اشتراكات لهذا المعلم")}catch(error){showResponse(teacherResponse,"error",error.message||"تعذر الاتصال بالسيرفر")}finally{setLoading(teacherSendButton,false,"إرسال")}}
+function selectSubscription(){const selectedIndex=subscriptionSelect.value;state.selectedSubscription=null;resultsCard.classList.add("hidden");clearResponse(resultResponse);clearResponse(subscriptionResponse);if(selectedIndex==="")return;const subscription=state.subscriptions[Number(selectedIndex)];if(!subscription){showResponse(subscriptionResponse,"error","الاشتراك المحدد غير موجود");return}state.selectedSubscription=subscription;resultsCard.classList.remove("hidden");showResponse(subscriptionResponse,"success","تم تحديد الطالب والاشتراك ويمكنك إدخال البيانات")}
+function clearResultInputs(){testNumber.value="";homeworkResult.value="";testResult.value="";teacherEvaluation.value=""}
+async function sendResult(){if(!state.teacher||!state.selectedSubscription){showResponse(resultResponse,"error","يجب اختيار الطالب والاشتراك أولا");return}const testNumberValue=testNumber.value.trim();const homeworkResultValue=homeworkResult.value.trim();const testResultValue=testResult.value.trim();const teacherEvaluationValue=teacherEvaluation.value.trim();if(!testNumberValue&&!homeworkResultValue&&!testResultValue&&!teacherEvaluationValue){showResponse(resultResponse,"error","لم يتم إدخال أى بيانات للتعديل");return}if(testNumberValue&&!/^\d+$/.test(testNumberValue)){showResponse(resultResponse,"error","رقم الاختبار غير صحيح");return}setLoading(sendResultButton,true,"إرسال البيانات");try{const result=await sendRequest({page:"results",action:"add_student_result",teacherName:state.teacher.name,teacherCode:state.teacher.code,studentName:state.selectedSubscription.studentName,studentCode:state.selectedSubscription.studentCode,subscriptionNumber:state.selectedSubscription.subscriptionNumber,testNumber:testNumberValue,homework:"",homeworkResult:homeworkResultValue,testResult:testResultValue,teacherEvaluation:teacherEvaluationValue});if(!result||result.success!==true){showResponse(resultResponse,"error",result&&result.message?result.message:"حدث خطأ أثناء حفظ البيانات");return}showResponse(resultResponse,"success",result.message||"تم حفظ البيانات بنجاح");clearResultInputs();sendResultButton.disabled=true}catch(error){showResponse(resultResponse,"error",error.message||"تعذر الاتصال بالسيرفر")}finally{if(!sendResultButton.disabled)setLoading(sendResultButton,false,"إرسال البيانات")}}
+teacherSendButton.addEventListener("click",getTeacherData);
+subscriptionSelect.addEventListener("change",selectSubscription);
+sendResultButton.addEventListener("click",sendResult);
+teacherIdInput.addEventListener("keydown",function(event){if(event.key==="Enter")getTeacherData()});
+</script>
+    <script src="auth.js"></script>
+</body>
+</html>
